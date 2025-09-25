@@ -23,7 +23,7 @@ public class EnrollmentService {
     @Autowired
     private DisciplineRepository disciplineRepository;
 
-    public Enrollment allocate(String studentId, String disciplineId, String professorId) {
+    public Enrollment allocate(String studentId, String disciplineId, String profId) {
         if (!studentRepository.existsById(studentId)) {
             throw new RuntimeException("Student not found");
         }
@@ -40,7 +40,7 @@ public class EnrollmentService {
         return enrollmentRepository.save(enrollment);
     }
 
-    public Enrollment assignGrade(String enrollmentId, Double grade, String professorId) {
+    public Enrollment assignGrade(String enrollmentId, Double grade, String profId) {
         Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
             .orElseThrow(() -> new RuntimeException("Enrollment not found"));
 
@@ -49,7 +49,7 @@ public class EnrollmentService {
         }
 
         enrollment.setGrade(grade);
-        enrollment.setAssignedBy(professorId);
+        enrollment.setAssignedBy(profId);
 
         return enrollmentRepository.save(enrollment);
     }

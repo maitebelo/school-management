@@ -19,34 +19,43 @@ public class EnrollmentController {
     private EnrollmentService enrollmentService;
 
     @PostMapping
-    public ResponseEntity<Enrollment> createEnrollment(@Valid @RequestBody EnrollmentRequest request, Authentication authentication) {
-        try {
-            String professorEmail = authentication.getName();
-            Enrollment enrollment = enrollmentService.allocate(request.getStudentId(), request.getDisciplineId(), professorEmail);
-            return ResponseEntity.status(HttpStatus.CREATED).body(enrollment);
-        } catch (RuntimeException e) {
-            if (e.getMessage().contains("not found")) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            } else if (e.getMessage().contains("already enrolled")) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).build();
-            }
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    public ResponseEntity<Enrollment> createEnrollment(@Valid @RequestBody EnrollmentRequest request, 
+                                            Authentication auth) {
+        String profEmail = auth.getName();
+        
+        if (request.getStudentId() == null || request.getDisciplineId() == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+        
+        Enrollment enrollment = enrollmentService.allocate(request.getStudentId(), 
+                                                         request.getDisciplineId(), 
+                                                         profEmail);
+        
+        if (enrollment != null) {
+            return new ResponseEntity<>(enrollment, HttpStatus.CREATED);
+        }
+        
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @PutMapping("/{enrollmentId}/grade")
     public ResponseEntity<Enrollment> assignGrade(@PathVariable String enrollmentId, 
-                                                  @Valid @RequestBody GradeRequest request,
-                                                  Authentication authentication) {
-        try {
-            String professorEmail = authentication.getName();
-            Enrollment enrollment = enrollmentService.assignGrade(enrollmentId, request.getGrade(), professorEmail);
-            return ResponseEntity.ok(enrollment);
-        } catch (RuntimeException e) {
-            if (e.getMessage().contains("not found")) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+                                       @Valid @RequestBody GradeRequest request,
+                                       Authentication auth) {
+        String profEmail = auth.getName();
+        
+        if (request.getGrade() < 0 || request.getGrade() > 10) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+        
+        Enrollment enrollment = enrollmentService.assignGrade(enrollmentId, 
+                                                            request.getGrade(), 
+                                                            profEmail);
+        
+        if (enrollment != null) {
+            return ResponseEntity.ok(enrollment);
+        }
+        
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }

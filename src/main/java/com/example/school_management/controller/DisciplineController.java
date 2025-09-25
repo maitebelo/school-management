@@ -25,42 +25,43 @@ public class DisciplineController {
     private ReportService reportService;
 
     @PostMapping
-    public ResponseEntity<Discipline> createDiscipline(@Valid @RequestBody DisciplineRequest request, Authentication authentication) {
-        try {
-            String professorEmail = authentication.getName();
-            Discipline discipline = disciplineService.createDiscipline(request, professorEmail);
-            return ResponseEntity.status(HttpStatus.CREATED).body(discipline);
-        } catch (RuntimeException e) {
-            if (e.getMessage().contains("already exists")) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).build();
-            }
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    public ResponseEntity<Discipline> createDiscipline(@Valid @RequestBody DisciplineRequest request, 
+                                           Authentication auth) {
+        String profEmail = auth.getName();
+        
+        if (request.getName() == null || request.getName().trim().isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+        
+        Discipline disc = disciplineService.createDiscipline(request, profEmail);
+        if (disc != null) {
+            return new ResponseEntity<>(disc, HttpStatus.CREATED);
+        }
+        
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @GetMapping
     public ResponseEntity<List<Discipline>> getAllDisciplines() {
         List<Discipline> disciplines = disciplineService.getAllDisciplines();
-        return ResponseEntity.ok(disciplines);
+        return new ResponseEntity<>(disciplines, HttpStatus.OK);
     }
 
     @GetMapping("/{disciplineId}/approved")
     public ResponseEntity<List<StudentGradeDTO>> getApprovedStudents(@PathVariable String disciplineId) {
-        try {
-            List<StudentGradeDTO> students = reportService.getApproved(disciplineId);
+        List<StudentGradeDTO> students = reportService.getApproved(disciplineId);
+        if (students != null) {
             return ResponseEntity.ok(students);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("/{disciplineId}/failed")
     public ResponseEntity<List<StudentGradeDTO>> getFailedStudents(@PathVariable String disciplineId) {
-        try {
-            List<StudentGradeDTO> students = reportService.getFailed(disciplineId);
+        List<StudentGradeDTO> students = reportService.getFailed(disciplineId);
+        if (students != null) {
             return ResponseEntity.ok(students);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }

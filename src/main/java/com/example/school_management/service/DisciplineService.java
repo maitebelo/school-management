@@ -14,7 +14,7 @@ public class DisciplineService {
     @Autowired
     private DisciplineRepository disciplineRepository;
 
-    public Discipline createDiscipline(DisciplineRequest request, String professorId) {
+    public Discipline createDiscipline(DisciplineRequest request, String profId) {
         if (request.getName() == null || request.getName().trim().isEmpty()) {
             throw new RuntimeException("Name is required");
         }

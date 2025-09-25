@@ -3,10 +3,10 @@ package com.example.school_management.dto;
 import jakarta.validation.constraints.NotBlank;
 
 public class DisciplineRequest {
-    @NotBlank(message = "Name is required")
+    @NotBlank
     private String name;
     
-    @NotBlank(message = "Code is required")
+    @NotBlank
     private String code;
 
     public DisciplineRequest() {}

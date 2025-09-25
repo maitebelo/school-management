@@ -20,24 +20,34 @@ public class StudentController {
     private StudentService studentService;
 
     @PostMapping
-    public ResponseEntity<Student> createStudent(@Valid @RequestBody StudentRequest request, Authentication authentication) {
-        try {
-            String professorEmail = authentication.getName();
-            Student student = studentService.createStudent(request, professorEmail);
-            return ResponseEntity.status(HttpStatus.CREATED).body(student);
-        } catch (RuntimeException e) {
-            if (e.getMessage().contains("Invalid CPF format")) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-            } else if (e.getMessage().contains("already exists")) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).build();
-            }
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    public ResponseEntity<Student> createStudent(@Valid @RequestBody StudentRequest request, 
+                                         Authentication auth) {
+        String profEmail = auth.getName();
+        
+        if (request.getName() == null || request.getName().trim().isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+        
+        if (request.getCpf() == null || request.getCpf().trim().isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        
+        String cpf = request.getCpf().replaceAll("[^0-9]", "");
+        if (cpf.length() != 11) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        
+        Student student = studentService.createStudent(request, profEmail);
+        if (student != null) {
+            return new ResponseEntity<>(student, HttpStatus.CREATED);
+        }
+        
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @GetMapping
     public ResponseEntity<List<Student>> getAllStudents() {
         List<Student> students = studentService.getAllStudents();
-        return ResponseEntity.ok(students);
+        return new ResponseEntity<>(students, HttpStatus.OK);
     }
 }

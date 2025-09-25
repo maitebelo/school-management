@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.regex.Pattern;
 
 @Service
 public class StudentService {
@@ -15,14 +14,13 @@ public class StudentService {
     @Autowired
     private StudentRepository studentRepository;
 
-    private static final Pattern CPF_PATTERN = Pattern.compile("\\d{11}");
-
-    public Student createStudent(StudentRequest request, String professorId) {
+    public Student createStudent(StudentRequest request, String profId) {
         if (request.getName() == null || request.getName().trim().isEmpty()) {
             throw new RuntimeException("Name is required");
         }
 
-        if (!CPF_PATTERN.matcher(request.getCpf()).matches()) {
+        String cpf = request.getCpf().replaceAll("[^0-9]", "");
+        if (cpf.length() != 11) {
             throw new RuntimeException("Invalid CPF format");
         }
 

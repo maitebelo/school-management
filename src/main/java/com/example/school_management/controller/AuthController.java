@@ -20,21 +20,19 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<Professor> register(@Valid @RequestBody ProfessorRegisterRequest request) {
-        try {
-            Professor professor = authService.register(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(professor);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        Professor prof = authService.register(request);
+        if (prof != null) {
+            return new ResponseEntity<>(prof, HttpStatus.CREATED);
         }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
-        try {
-            LoginResponse response = authService.login(request);
-            return ResponseEntity.ok(response);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        LoginResponse resp = authService.login(request);
+        if (resp != null) {
+            return ResponseEntity.ok(resp);
         }
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 }
