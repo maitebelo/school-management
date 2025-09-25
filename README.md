@@ -35,7 +35,7 @@ docker compose logs
 docker compose up -d --build
 ```
 
-## 📁 Estrutura
+## Estrutura
 
 ```
 src/
@@ -49,7 +49,7 @@ src/
     └── application.properties
 ```
 
-## 🔐 Configuração
+## Configuração
 
 - **MongoDB**: admin/password123
 - **Database**: assessmentdb
