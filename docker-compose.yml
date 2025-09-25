@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  # Serviço do MongoDB
+  mongodb:
+    image: mongo:7.0
+    container_name: school-management-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: assessmentdb
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - school-network
+
+  # Serviço da aplicação Spring Boot
+  school-management-app:
+    build: .
+    container_name: school-management-app
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://admin:password123@mongodb:27017/assessmentdb?authSource=admin
+      JWT_SECRET: mySecretKey123456789012345678901234567890
+      JWT_EXPIRATION: 3600000
+    depends_on:
+      - mongodb
+    networks:
+      - school-network
+
+# Volumes para persistir dados
+volumes:
+  mongodb_data:
+
+# Rede para comunicação entre containers
+networks:
+  school-network:
+    driver: bridge

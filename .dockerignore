@@ -1,0 +1,27 @@
+# Arquivos e diretórios a serem ignorados pelo Docker
+target/
+.git/
+.gitignore
+README.md
+Dockerfile
+docker-compose.yml
+.dockerignore
+mongo-init.js
+
+# Arquivos de IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Arquivos temporários
+*.tmp
+*.temp
